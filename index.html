@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Stats Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .export-btn { 
+            width: 100%; text-align: left; padding: 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;
+            margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .export-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-[#F9FBFF] text-slate-900">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        
+        <aside class="w-full lg:w-80 bg-white border-r border-slate-100 p-8 space-y-6 z-10 overflow-y-auto">
+            <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">Controls</h2>
+            <div class="space-y-4">
+                <input type="text" id="artistInput" value="Artist Name" oninput="updateUI()" class="w-full bg-slate-50 border rounded-lg p-2 outline-none text-sm">
+                <input type="number" id="streamsInput" value="1053894" oninput="updateUI()" class="w-full bg-slate-50 border rounded-lg p-2 outline-none text-sm">
+                <input type="color" id="colorInput" value="#3b82f6" oninput="updateUI()" class="w-full h-10 rounded-lg cursor-pointer">
+            </div>
+
+            <hr>
+
+            <h2 class="text-[10px] font-bold text-slate-400 uppercase">Export Assets</h2>
+            <button onclick="exportBox('streamsCard', 'streams-box')" class="export-btn">📦 Streams Box</button>
+            <button onclick="exportBox('listenersCard', 'listeners-box')" class="export-btn">📦 Listeners Box</button>
+            <button onclick="exportBox('graphFull', 'graph-with-details')" class="export-btn">📊 Graph + Details</button>
+            <button onclick="exportPureGraph()" class="export-btn">📈 Pure Graph Only</button>
+
+            <hr>
+
+            <div id="slidersContainer" class="space-y-3"></div>
+        </aside>
+
+        <main class="flex-1 p-12">
+            <div class="max-w-4xl mx-auto" id="captureArea">
+                <header class="mb-10">
+                    <h1 id="artistDisplay" class="text-5xl font-black tracking-tight mb-2">Artist Name</h1>
+                </header>
+
+                <div class="grid grid-cols-2 gap-6 mb-10">
+                    <div id="streamsCard" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Streams</p>
+                        <h2 id="streamsDisplay" class="text-4xl font-black tracking-tighter">1,053,894</h2>
+                    </div>
+                    <div id="listenersCard" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Listeners</p>
+                        <h2 id="listenersDisplay" class="text-4xl font-black tracking-tighter">283,011</h2>
+                    </div>
+                </div>
+
+                <div id="graphFull" class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-white">
+                    <h3 class="font-bold text-slate-800 mb-6">Streams Growth</h3>
+                    <div class="h-[350px] w-full">
+                        <canvas id="statsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let graphData = [15000, 32000, 28000, 45000, 68000, 57945];
+        let labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'Today'];
+        
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: graphData,
+                    borderColor: '#3b82f6',
+                    borderWidth: 5,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: (ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 ? 8 : 0),
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 4,
+                    backgroundColor: (ctx) => {
+                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
+                        g.addColorStop(0, ctx.dataset.borderColor + '44');
+                        g.addColorStop(1, 'rgba(255,255,255,0)');
+                        return g;
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { weight: '600' } } },
+                    y: { display: false }
+                }
+            }
+        });
+
+        function updateUI() {
+            const color = document.getElementById('colorInput').value;
+            document.getElementById('artistDisplay').innerText = document.getElementById('artistInput').value;
+            document.getElementById('streamsDisplay').innerText = Number(document.getElementById('streamsInput').value).toLocaleString();
+            myChart.data.datasets[0].borderColor = color;
+            myChart.data.datasets[0].pointBackgroundColor = color;
+            myChart.update();
+        }
+
+        // EXPORT BOXES (Keeps the white background & rounded corners)
+        async function exportBox(id, name) {
+            const el = document.getElementById(id);
+            const canvas = await html2canvas(el, {
+                backgroundColor: null, // Makes area AROUND the box transparent
+                scale: 3,
+                logging: false,
+                borderRadius: 32 // Matches the 2rem/2.5rem style
+            });
+            save(canvas, name);
+        }
+
+        // EXPORT PURE GRAPH (Hides grid and labels first)
+        async function exportPureGraph() {
+            // Toggle scales off
+            myChart.options.scales.x.display = false;
+            myChart.update('none');
+
+            const canvas = await html2canvas(document.getElementById('statsChart'), {
+                backgroundColor: null,
+                scale: 3
+            });
+
+            // Toggle scales back on
+            myChart.options.scales.x.display = true;
+            myChart.update('none');
+            
+            save(canvas, 'pure-graph');
+        }
+
+        function save(canvas, name) {
+            const link = document.createElement('a');
+            link.download = name + '.png';
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        }
+
+        const container = document.getElementById('slidersContainer');
+        graphData.forEach((val, i) => {
+            container.innerHTML += `<input type="range" min="0" max="150000" value="${val}" class="w-full h-1 mb-2 accent-blue-600" oninput="updateGraphPoint(${i}, this.value)">`;
+        });
+
+        function updateGraphPoint(i, v) {
+            myChart.data.datasets[0].data[i] = v;
+            myChart.update('none');
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
