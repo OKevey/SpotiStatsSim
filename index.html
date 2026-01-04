@@ -9,7 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Base styles */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; overflow: hidden; }
+        
+        /* Sidebar Styling */
         .export-btn { 
             width: 100%; text-align: left; padding: 10px; border-radius: 12px;
             font-size: 11px; font-weight: 800; text-transform: uppercase;
@@ -17,36 +20,72 @@
             margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
         }
         .export-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+        
+        /* Dark Mode Theme Overrides */
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
+        .dark-mode main { background-color: #0f172a; } /* Fix for the background issue */
+        .dark-mode aside { background-color: #1e293b; border-color: #334155; }
+        .dark-mode .bg-white { background-color: #1e293b; border-color: #334155; color: white; }
+        .dark-mode input { background-color: #334155; color: white; border-color: #475569; }
+        .dark-mode .export-btn { background-color: #334155; color: #94a3b8; border-color: #475569; }
+
+        /* Custom scrollbar */
+        aside::-webkit-scrollbar { width: 5px; }
+        aside::-webkit-scrollbar-track { background: transparent; }
+        aside::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .dark-mode aside::-webkit-scrollbar-thumb { background: #334155; }
     </style>
 </head>
 <body class="bg-[#F9FBFF] text-slate-900">
 
-    <div class="flex flex-col lg:flex-row min-h-screen">
+    <div class="flex flex-col lg:flex-row h-screen w-screen overflow-hidden">
         
-        <aside class="w-full lg:w-80 bg-white border-r border-slate-100 p-8 space-y-6 z-10 overflow-y-auto">
-            <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">Controls</h2>
+        <aside class="w-full lg:w-80 h-full bg-white border-r border-slate-100 p-8 space-y-6 z-10 overflow-y-auto">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-[18px] font-black uppercase tracking-tight text-blue-500 mb-4">🌐 ARTIST STATS SIMULATOR</h2>
+                <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">🖌️ Ui Style</h2>
+                <div class="flex gap-2">
+                    <button onclick="toggleDarkMode()" class="flex-1 text-[10px] bg-slate-100 dark:bg-slate-700 p-2 rounded-lg font-bold">🌓 Mode</button>
+                    <button id="gridToggleBtn" onclick="toggleGrid()" class="flex-1 text-[10px] bg-blue-100 text-blue-600 p-2 rounded-lg font-bold">📏 Grid: ON</button>
+                </div>
+            </div>
+            
             <div class="space-y-4">
-                <input type="text" id="artistInput" value="Artist Name" oninput="updateUI()" class="w-full bg-slate-50 border rounded-lg p-2 outline-none text-sm">
-                <input type="number" id="streamsInput" value="1053894" oninput="updateUI()" class="w-full bg-slate-50 border rounded-lg p-2 outline-none text-sm">
-                <input type="number" id="ListenersInput" value="283,011" oninput="updateUI()" class="w-full bg-slate-50 border rounded-lg p-2 outline-none text-sm">
-                <input type="color" id="colorInput" value="#3b82f6" oninput="updateUI()" class="w-full h-10 rounded-lg cursor-pointer">
+                <div>
+                    <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">👤 Artist Name</h2>
+                    <input type="text" id="artistInput" placeholder="Artist Name" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
+                </div>
+                <div>
+                    <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">📢 Streams</h2>
+                    <input type="number" id="streamsInput" placeholder="1053894" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
+                </div>
+                <div>
+                    <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">🎶 Listeners</h2>
+                    <input type="number" id="listenersInput" placeholder="283011" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
+                </div>
+                <div>
+                    <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">🎨 Color</h2>
+                    <input type="color" id="colorInput" value="#3b82f6" oninput="updateUI()" class="w-full h-10 rounded-lg cursor-pointer">
+                </div>
             </div>
 
-            <hr>
+            <hr class="opacity-20">
 
-            <h2 class="text-[10px] font-bold text-slate-400 uppercase">Export Assets</h2>
-            <button onclick="exportBox('streamsCard', 'streams-box')" class="export-btn">📦 Streams Box</button>
-            <button onclick="exportBox('listenersCard', 'listeners-box')" class="export-btn">📦 Listeners Box</button>
-            <button onclick="exportBox('graphFull', 'graph-with-details')" class="export-btn">📊 Graph + Details</button>
+            <h2 class="text-[10px] font-bold text-slate-400 uppercase">Export</h2>
+            <button onclick="exportBox('captureArea', 'full-dashboard')" class="export-btn bg-blue-600 text-white border-blue-800">🖼️ Full Dashboard</button>
+            <button onclick="exportBox('graphFull', 'graph-with-details')" class="export-btn text-black-500 mb-2">📊 Graph + Details</button>
+            <button onclick="exportBox('listenersCard', 'listeners-box')" class="export-btn text-black-500 mb-2">🎶 Listeners Box</button>
+            <button onclick="exportBox('streamsCard', 'streams-box')" class="export-btn text-black-500 mb-2">📢 Streams Box</button>
             <button onclick="exportPureGraph()" class="export-btn">📈 Pure Graph Only</button>
 
-            <hr>
+            <hr class="opacity-20">
 
-            <div id="slidersContainer" class="space-y-3"></div>
+            <h2 class="text-[12px] font-black uppercase tracking-[0.1em] text-blue-800 mb-4">📊 Sliders</h2>
+            <div id="slidersContainer" class="space-y-4 pb-10"></div>
         </aside>
 
-        <main class="flex-1 p-12">
-            <div class="max-w-4xl mx-auto" id="captureArea">
+        <main class="flex-1 p-12 overflow-y-auto bg-[#F9FBFF] transition-colors duration-300">
+            <div class="max-w-4xl mx-auto p-6 rounded-[3rem]" id="captureArea">
                 <header class="mb-10">
                     <h1 id="artistDisplay" class="text-5xl font-black tracking-tight mb-2">Artist Name</h1>
                 </header>
@@ -54,16 +93,16 @@
                 <div class="grid grid-cols-2 gap-6 mb-10">
                     <div id="streamsCard" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Streams</p>
-                        <h2 id="streamsDisplay" class="text-4xl font-black tracking-tighter">1,053,894</h2>
+                        <h2 id="streamsDisplay" class="text-4xl font-black tracking-tighter">0</h2>
                     </div>
                     <div id="listenersCard" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                         <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Listeners</p>
-                        <h2 id="listenersDisplay" class="text-4xl font-black tracking-tighter">283,011</h2>
+                        <h2 id="listenersDisplay" class="text-4xl font-black tracking-tighter">0</h2>
                     </div>
                 </div>
 
                 <div id="graphFull" class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-white">
-                    <h3 class="font-bold text-slate-800 mb-6">Streams Growth</h3>
+                    <h3 class="font-bold mb-6">Streams Growth</h3>
                     <div class="h-[350px] w-full">
                         <canvas id="statsChart"></canvas>
                     </div>
@@ -73,6 +112,8 @@
     </div>
 
     <script>
+        let isDarkMode = false;
+        let showGrid = true;
         let graphData = [15000, 32000, 28000, 45000, 68000, 57945];
         let labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'Today'];
         
@@ -105,47 +146,74 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { weight: '600' } } },
-                    y: { display: false }
+                    y: { 
+                        display: true,
+                        grid: { color: '#e2e8f0', drawBorder: false },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { weight: '600', size: 10 },
+                            callback: (val) => val >= 1000 ? (val/1000) + 'k' : val
+                        }
+                    }
                 }
             }
         });
 
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            
+            // Update the chart scales to match the mode
+            myChart.options.scales.x.ticks.color = isDarkMode ? '#64748b' : '#94a3b8';
+            myChart.options.scales.y.ticks.color = isDarkMode ? '#64748b' : '#94a3b8';
+            myChart.options.scales.y.grid.color = isDarkMode ? '#334155' : '#e2e8f0';
+            myChart.update();
+        }
+
+        function toggleGrid() {
+            showGrid = !showGrid;
+            const btn = document.getElementById('gridToggleBtn');
+            myChart.options.scales.y.display = showGrid;
+            btn.innerText = showGrid ? "📏 Grid: ON" : "📏 Grid: OFF";
+            btn.className = showGrid ? "flex-1 text-[10px] bg-blue-100 text-blue-600 p-2 rounded-lg font-bold" : "flex-1 text-[10px] bg-slate-100 text-slate-500 p-2 rounded-lg font-bold";
+            myChart.update();
+        }
+
         function updateUI() {
             const color = document.getElementById('colorInput').value;
-            document.getElementById('artistDisplay').innerText = document.getElementById('artistInput').value;
-            document.getElementById('streamsDisplay').innerText = Number(document.getElementById('streamsInput').value).toLocaleString();
+            const artist = document.getElementById('artistInput').value || "Artist Name";
+            const streams = document.getElementById('streamsInput').value || 0;
+            const listeners = document.getElementById('listenersInput').value || 0;
+
+            document.getElementById('artistDisplay').innerText = artist;
+            document.getElementById('streamsDisplay').innerText = Number(streams).toLocaleString();
+            document.getElementById('listenersDisplay').innerText = Number(listeners).toLocaleString();
+            
             myChart.data.datasets[0].borderColor = color;
             myChart.data.datasets[0].pointBackgroundColor = color;
             myChart.update();
         }
 
-        // EXPORT BOXES (Keeps the white background & rounded corners)
         async function exportBox(id, name) {
             const el = document.getElementById(id);
-            const canvas = await html2canvas(el, {
-                backgroundColor: null, // Makes area AROUND the box transparent
-                scale: 3,
-                logging: false,
-                borderRadius: 32 // Matches the 2rem/2.5rem style
+            const canvas = await html2canvas(el, { 
+                backgroundColor: isDarkMode ? '#0f172a' : '#F9FBFF', // Ensures export background matches the UI
+                scale: 3, 
+                useCORS: true 
             });
             save(canvas, name);
         }
 
-        // EXPORT PURE GRAPH (Hides grid and labels first)
         async function exportPureGraph() {
-            // Toggle scales off
+            const oldX = myChart.options.scales.x.display;
+            const oldY = myChart.options.scales.y.display;
             myChart.options.scales.x.display = false;
+            myChart.options.scales.y.display = false;
             myChart.update('none');
-
-            const canvas = await html2canvas(document.getElementById('statsChart'), {
-                backgroundColor: null,
-                scale: 3
-            });
-
-            // Toggle scales back on
-            myChart.options.scales.x.display = true;
+            const canvas = await html2canvas(document.getElementById('statsChart'), { backgroundColor: null, scale: 3 });
+            myChart.options.scales.x.display = oldX;
+            myChart.options.scales.y.display = oldY;
             myChart.update('none');
-            
             save(canvas, 'pure-graph');
         }
 
@@ -156,9 +224,16 @@
             link.click();
         }
 
+        // Generate Sliders
         const container = document.getElementById('slidersContainer');
         graphData.forEach((val, i) => {
-            container.innerHTML += `<input type="range" min="0" max="150000" value="${val}" class="w-full h-1 mb-2 accent-blue-600" oninput="updateGraphPoint(${i}, this.value)">`;
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col gap-1";
+            wrapper.innerHTML = `
+                <div class="flex justify-between text-[10px] font-bold text-slate-400"><span>${labels[i]}</span></div>
+                <input type="range" min="0" max="150000" value="${val}" class="w-full h-1 bg-slate-100 rounded-lg appearance-none accent-blue-600 cursor-pointer" oninput="updateGraphPoint(${i}, this.value)">
+            `;
+            container.appendChild(wrapper);
         });
 
         function updateGraphPoint(i, v) {
@@ -169,5 +244,4 @@
         updateUI();
     </script>
 </body>
-
 </html>
