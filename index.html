@@ -45,7 +45,7 @@
                 <h2 class="text-[18px] font-black uppercase tracking-tight text-blue-500 mb-4">🌐 ARTIST STATS SIMULATOR</h2>
                 <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">🖌️ Ui Style</h2>
                 <div class="flex gap-2">
-                    <button onclick="toggleDarkMode()" class="flex-1 text-[10px] bg-slate-100 dark:bg-slate-700 p-2 rounded-lg font-bold">🌓 Mode</button>
+                    <button id="darkmodeBtn" onclick="toggleDarkMode()" class="flex-1 text-[10px] text-white-500 bg-slate-100 dark:bg-slate-700 p-2 rounded-lg text-white font-bold" >🌓 Mode</button>
                     <button id="gridToggleBtn" onclick="toggleGrid()" class="flex-1 text-[10px] bg-blue-100 text-blue-600 p-2 rounded-lg font-bold">📏 Grid: ON</button>
                 </div>
             </div>
@@ -162,7 +162,8 @@
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark-mode');
-            
+            const btn = document.getElementById('darkmodeBtn');
+            btn.className = isDarkMode ? "flex-1 text-[10px] text-white-500 bg-slate-100 dark:bg-white-700 p-2 rounded-lg text-slate-500 font-bold": "flex-1 text-[10px] text-white-500 bg-slate-100 dark:bg-slate-700 p-2 rounded-lg text-white font-bold";
             // Update the chart scales to match the mode
             myChart.options.scales.x.ticks.color = isDarkMode ? '#64748b' : '#94a3b8';
             myChart.options.scales.y.ticks.color = isDarkMode ? '#64748b' : '#94a3b8';
