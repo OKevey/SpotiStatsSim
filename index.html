@@ -57,11 +57,11 @@
                 </div>
                 <div>
                     <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">📢 Streams</h2>
-                    <input type="number" id="streamsInput" placeholder="e.g: 10000 (don't use '.' or ',')" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
+                    <input type="number" id="streamsInput" placeholder="1053894" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
                 </div>
                 <div>
                     <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">🎶 Listeners</h2>
-                    <input type="number" id="listenersInput" placeholder="e.g: 10000 (don't use '.' or ',')" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
+                    <input type="number" id="listenersInput" placeholder="283011" oninput="updateUI()" class="w-full border rounded-lg p-2 outline-none text-sm">
                 </div>
                 <div>
                     <h2 class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500 mb-2">🎨 Color</h2>
@@ -196,13 +196,24 @@
         }
 
         async function exportBox(id, name) {
-            const el = document.getElementById(id);
-            const canvas = await html2canvas(el, { 
-                backgroundColor: isDarkMode ? '#0f172a' : '#F9FBFF', // Ensures export background matches the UI
-                scale: 3, 
-                useCORS: true 
-            });
-            save(canvas, name);
+        const el = document.getElementById(id);
+    
+        // Create the snapshot with a null (transparent) background
+        const canvas = await html2canvas(el, { 
+        backgroundColor: null, // This allows the rounded corners to be transparent
+        scale: 3, 
+        useCORS: true,
+        logging: false,
+        // This prevents the parent's background color from bleeding in
+        onclone: (clonedDoc) => {
+            const clonedEl = clonedDoc.getElementById(id);
+            clonedEl.style.margin = "0";
+            // Ensure the cloned element keeps its background color 
+            // but the surrounding canvas remains transparent
+        }
+        });
+    
+        save(canvas, name);
         }
 
         async function exportPureGraph() {
@@ -211,7 +222,7 @@
             myChart.options.scales.x.display = false;
             myChart.options.scales.y.display = false;
             myChart.update('none');
-            const canvas = await html2canvas(document.getElementById('statsChart'), { backgroundColor: null, scale: 3 });
+            const canvas = await html2canvas(document.getElementById('statsChart'), { backgroundColor: null, scale: 20 });
             myChart.options.scales.x.display = oldX;
             myChart.options.scales.y.display = oldY;
             myChart.update('none');
@@ -246,4 +257,3 @@
     </script>
 </body>
 </html>
-
